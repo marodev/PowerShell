@@ -43,7 +43,7 @@ jobs:
         shell: powershell
         run: |
           .\.sonar\scanner\dotnet-sonarscanner begin /k:"marodev_PowerShell" /o:"marodev-github" /d:sonar.login="${{ secrets.SONAR_TOKEN }}" /d:sonar.host.url="https://sonarcloud.io"
-          Import-Module ./build.psm1
+          Import-Module .\build.psm1
           Start-PSBootstrap
           dotnet restore
           dotnet build
