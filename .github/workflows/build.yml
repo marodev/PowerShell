@@ -17,6 +17,22 @@ jobs:
         uses: actions/setup-dotnet@v1
         with:
           dotnet-version: '5.0.100-rc.1.20452.10'
+      - name: 🔨 Use .NET Core 3.0.0 SDK
+        uses: actions/setup-dotnet@v1
+        with:
+          dotnet-version: '3.0.0'
+      - name: 🪓 **DOTNET HACK** 🪓
+        shell: pwsh
+        run: |
+          $version = Split-Path (Split-Path $ENV:DOTNET_ROOT -Parent) -Leaf;
+          $root = Split-Path (Split-Path $ENV:DOTNET_ROOT -Parent) -Parent;
+          $directories = Get-ChildItem $root | Where-Object { $_.Name -ne $version };
+          foreach ($dir in $directories) {
+            $from = $dir.FullName;
+            $to = "$root/$version";
+            Write-Host Copying from $from to $to;
+            Copy-Item "$from\*" $to -Recurse -Force;
+          }    
       - name: Cache SonarCloud packages
         uses: actions/cache@v1
         with:
@@ -44,7 +60,8 @@ jobs:
         run: |
           .\.sonar\scanner\dotnet-sonarscanner begin /k:"marodev_PowerShell" /o:"marodev-github" /d:sonar.login="${{ secrets.SONAR_TOKEN }}" /d:sonar.host.url="https://sonarcloud.io"
           Import-Module .\build.psm1
-          Start-PSBuild
+          Start-PSBootstrap
+          # Start-PSBuild
           # dotnet restore
           # dotnet build
           .\.sonar\scanner\dotnet-sonarscanner end /d:sonar.login="${{ secrets.SONAR_TOKEN }}"
